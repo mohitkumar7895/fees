@@ -146,11 +146,6 @@ export default function LoginPage() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
             </Button>
           </form>
-          <div className="mt-6 rounded-lg bg-muted p-4 text-xs text-muted-foreground">
-            <p className="font-medium mb-2">Demo Credentials:</p>
-            <p>Super Admin: superadmin@school.com / admin123</p>
-            <p>Admin: admin@school.com / admin123</p>
-          </div>
         </CardContent>
       </Card>
     </div>
