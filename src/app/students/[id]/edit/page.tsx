@@ -255,7 +255,11 @@ export default function EditStudentPage() {
               <FlexibleDateInput
                 value={watch("admissionDate")}
                 onChange={(v) => setValue("admissionDate", v)}
+                placeholder="DD/MM/YYYY"
               />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Back date (past date) enter ya calendar se pick kar sakte hain.
+              </p>
             </FormField>
             <FormField label="Class">
               <Select
