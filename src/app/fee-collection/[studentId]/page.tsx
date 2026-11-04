@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Percent, CalendarRange, Receipt, Bus, History, Pencil, Printer, Save, Users } from "lucide-react";
+import { Loader2, Percent, CalendarRange, Receipt, Bus, History, Pencil, Printer, Save, Users, UserPlus, Search, X } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { PageHeader } from "@/components/layout/page-header";
 import { FormField } from "@/components/shared/form-field";
@@ -136,8 +136,16 @@ function CollectFeePageContent() {
   const [sessionId, setSessionId] = useState(searchParams?.get("sessionId") || "");
   const [calculation, setCalculation] = useState<FeeCalculation | null>(null);
   const [payments, setPayments] = useState<Record<string, unknown>[]>([]);
-  const [siblings, setSiblings] = useState<{ student: Record<string, unknown>; calculation: FeeCalculation | null }[]>([]);
+  const [siblings, setSiblings] = useState<
+    { student: Record<string, unknown>; calculation: FeeCalculation | null; isManualSibling?: boolean }[]
+  >([]);
   const [selectedSiblings, setSelectedSiblings] = useState<string[]>([]);
+  const [showAddSibling, setShowAddSibling] = useState(false);
+  const [siblingSearchQuery, setSiblingSearchQuery] = useState("");
+  const [siblingSearchResults, setSiblingSearchResults] = useState<Record<string, unknown>[]>([]);
+  const [searchingSiblings, setSearchingSiblings] = useState(false);
+  const [addingSiblingId, setAddingSiblingId] = useState<string | null>(null);
+  const [removingSiblingId, setRemovingSiblingId] = useState<string | null>(null);
   const [feeStructure, setFeeStructure] = useState<{ admissionFee?: number } | null>(null);
   const [routes, setRoutes] = useState<TransportRoute[]>([]);
   const [paymentAmount, setPaymentAmount] = useState("");
@@ -288,7 +296,7 @@ function CollectFeePageContent() {
       });
       return;
     }
-    if (isSuperAdmin && paymentDate && paymentDate > todayCalendarDateString()) {
+    if (paymentDate && paymentDate > todayCalendarDateString()) {
       toast({ title: "Invalid date", description: "Payment date cannot be in the future", variant: "destructive" });
       return;
     }
@@ -331,7 +339,7 @@ function CollectFeePageContent() {
         includeAdmission,
         quarter: selectedQuarters.length > 0 ? Math.min(...selectedQuarters) : undefined,
         paymentType: selectedQuarters.length > 0 ? "quarterly" : "custom",
-        ...(isSuperAdmin && paymentDate ? { paymentDate } : {}),
+        ...(paymentDate ? { paymentDate } : {}),
       })) as { data: { _id?: string; id?: string } };
 
       const receiptIds = [String(mainRes.data._id || mainRes.data.id || "")];
@@ -361,7 +369,7 @@ function CollectFeePageContent() {
           includeAdmission: false,
           quarter: selectedQuarters.length > 0 ? Math.min(...selectedQuarters) : undefined,
           paymentType: selectedQuarters.length > 0 ? "quarterly" : "custom",
-          ...(isSuperAdmin && paymentDate ? { paymentDate } : {}),
+          ...(paymentDate ? { paymentDate } : {}),
         })) as { data: { _id?: string; id?: string } };
 
         const sibReceiptId = String(sibRes.data._id || sibRes.data.id || "");
@@ -401,7 +409,7 @@ function CollectFeePageContent() {
       toast({ title: "Error", description: "Enter valid amount for previous session", variant: "destructive" });
       return;
     }
-    if (isSuperAdmin && paymentDate && paymentDate > todayCalendarDateString()) {
+    if (paymentDate && paymentDate > todayCalendarDateString()) {
       toast({ title: "Invalid date", description: "Payment date cannot be in the future", variant: "destructive" });
       return;
     }
@@ -433,7 +441,7 @@ function CollectFeePageContent() {
         remarks: remarks || `Previous session dues — ${label}`,
         includeAdmission: false,
         paymentType: "custom",
-        ...(isSuperAdmin && paymentDate ? { paymentDate } : {}),
+        ...(paymentDate ? { paymentDate } : {}),
       }) as { data: { _id?: string; id?: string } };
       openReceipt(res);
     } catch (error) {
@@ -567,6 +575,99 @@ function CollectFeePageContent() {
     setSelectedSiblings((prev) =>
       prev.includes(sibId) ? prev.filter((id) => id !== sibId) : [...prev, sibId]
     );
+  };
+
+  useEffect(() => {
+    const q = siblingSearchQuery.trim();
+    if (!showAddSibling || q.length < 1) {
+      setSiblingSearchResults([]);
+      setSearchingSiblings(false);
+      return;
+    }
+    let cancelled = false;
+    setSearchingSiblings(true);
+    const timer = setTimeout(() => {
+      studentsApi
+        .getAll({ search: q, status: "active", limit: "8" })
+        .then((res) => {
+          if (cancelled) return;
+          const list = ((res as { data?: Record<string, unknown>[] }).data || []).filter((st) => {
+            const stId = getStudentRecordId(st);
+            if (!stId || stId === studentId) return false;
+            return !siblings.some((sib) => getStudentRecordId(sib.student) === stId);
+          });
+          setSiblingSearchResults(list);
+        })
+        .catch(() => {
+          if (!cancelled) setSiblingSearchResults([]);
+        })
+        .finally(() => {
+          if (!cancelled) setSearchingSiblings(false);
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [siblingSearchQuery, showAddSibling, studentId, siblings]);
+
+  const handleAddManualSibling = async (targetStudent: Record<string, unknown>) => {
+    const targetId = getStudentRecordId(targetStudent);
+    if (!targetId) return;
+    setAddingSiblingId(targetId);
+    try {
+      await studentsApi.linkSibling(studentId, targetId);
+      const summaryRes = await feePaymentsApi.getStudentSummary(
+        targetId,
+        session?._id || sessionId || undefined,
+        includeAdmission
+      );
+      const summaryData = (summaryRes as { data: Record<string, unknown> }).data;
+      const sibStudent = (summaryData.student as Record<string, unknown>) || targetStudent;
+      const sibCalc = (summaryData.calculation as FeeCalculation | null) ?? null;
+
+      setSiblings((prev) => {
+        if (prev.some((s) => getStudentRecordId(s.student) === targetId)) return prev;
+        return [...prev, { student: sibStudent, calculation: sibCalc, isManualSibling: true }];
+      });
+      if (selectedQuarters.length > 0) {
+        setSelectedSiblings((prev) => (prev.includes(targetId) ? prev : [...prev, targetId]));
+      }
+      setSiblingSearchQuery("");
+      setSiblingSearchResults([]);
+      toast({
+        title: "Sibling added",
+        description: `${displayStudentField(sibStudent.studentName)} added to Family / Siblings`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add sibling",
+        variant: "destructive",
+      });
+    } finally {
+      setAddingSiblingId(null);
+    }
+  };
+
+  const handleRemoveManualSibling = async (sibId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRemovingSiblingId(sibId);
+    try {
+      await studentsApi.unlinkSibling(studentId, sibId);
+      setSelectedSiblings((prev) => prev.filter((id) => id !== sibId));
+      await loadSummary({ soft: true });
+      toast({ title: "Removed", description: "Sibling unlinked" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to remove sibling",
+        variant: "destructive",
+      });
+    } finally {
+      setRemovingSiblingId(null);
+    }
   };
 
   const getSiblingCalculatedAmount = (sibId: string) => {
@@ -1110,77 +1211,185 @@ function CollectFeePageContent() {
             </Card>
           )}
 
-          {siblings.length > 0 && (
-            <Card className="border-blue-200 bg-blue-50/10 dark:border-blue-900 dark:bg-blue-950/20">
-              <CardHeader className="pb-3 border-b border-blue-100 dark:border-blue-900">
+          <Card className="border-blue-200 bg-blue-50/10 dark:border-blue-900 dark:bg-blue-950/20">
+            <CardHeader className="pb-3 border-b border-blue-100 dark:border-blue-900">
+              <div className="flex items-center justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-base text-blue-800 dark:text-blue-300">
                   <Users className="h-4 w-4" />
                   Family / Siblings
                 </CardTitle>
-                <p className="text-xs text-muted-foreground font-normal">
-                  Same father name & mobile — tick siblings to add their selected quarter fees in this payment.
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={showAddSibling ? "secondary" : "outline"}
+                  className="h-7 px-2.5 text-xs border-blue-300 text-blue-700 hover:bg-blue-100/60 dark:border-blue-800 dark:text-blue-300"
+                  onClick={() => {
+                    setShowAddSibling((prev) => !prev);
+                    setSiblingSearchQuery("");
+                    setSiblingSearchResults([]);
+                  }}
+                >
+                  {showAddSibling ? (
+                    <>
+                      <X className="h-3.5 w-3.5 mr-1" />
+                      Close
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-3.5 w-3.5 mr-1" />
+                      + Add Sibling
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground font-normal">
+                Auto-matched or click <strong>+ Add Sibling</strong> to link.
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+              {showAddSibling && (
+                <div className="rounded-lg border border-blue-200 bg-white dark:bg-background dark:border-blue-800 p-3 space-y-2.5">
+                  <div className="relative">
+                    <Search className="h-4 w-4 text-muted-foreground absolute left-2.5 top-2.5" />
+                    <Input
+                      value={siblingSearchQuery}
+                      onChange={(e) => setSiblingSearchQuery(e.target.value)}
+                      placeholder="Search sibling by Name, Reg No., Admission No., Father Name..."
+                      className="pl-8 h-9 text-sm"
+                      autoFocus
+                    />
+                  </div>
+                  {searchingSiblings && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground py-1.5 px-1">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Searching students…
+                    </div>
+                  )}
+                  {!searchingSiblings && siblingSearchQuery.trim().length > 0 && siblingSearchResults.length === 0 && (
+                    <p className="text-xs text-muted-foreground py-1 px-1">
+                      No matching student found.
+                    </p>
+                  )}
+                  {siblingSearchResults.length > 0 && (
+                    <div className="max-h-52 overflow-y-auto divide-y border rounded-md">
+                      {siblingSearchResults.map((st) => {
+                        const stId = getStudentRecordId(st);
+                        const stCls = st.classId as { name?: string } | undefined;
+                        const stSec = st.sectionId as { name?: string } | undefined;
+                        const isAdding = addingSiblingId === stId;
+                        return (
+                          <div
+                            key={stId}
+                            className="flex items-center justify-between gap-2 p-2 text-xs hover:bg-slate-50 dark:hover:bg-muted/40"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm truncate">
+                                {displayStudentField(st.studentName)}
+                              </p>
+                              <p className="text-muted-foreground truncate">
+                                Class {refName(stCls)}-{refName(stSec)} · Reg:{" "}
+                                {displayStudentField(st.registrationNumber)}
+                                {st.fatherName ? ` · Father: ${displayStudentField(st.fatherName)}` : ""}
+                              </p>
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="h-7 px-2.5 text-xs shrink-0"
+                              disabled={isAdding}
+                              onClick={() => handleAddManualSibling(st)}
+                            >
+                              {isAdding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Add"}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {siblings.length === 0 && !showAddSibling && (
+                <p className="text-xs text-muted-foreground italic">
+                  No siblings linked. Click <strong>+ Add Sibling</strong> to search & add.
                 </p>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3">
-                {siblings.map((sib) => {
-                  const sibId = getStudentRecordId(sib.student);
-                  const isChecked = selectedSiblings.includes(sibId);
-                  const sibAmount = getSiblingCalculatedAmount(sibId);
-                  const sibCls = sib.student.classId as { name: string };
-                  const sibSec = sib.student.sectionId as { name: string };
+              )}
 
-                  return (
-                    <label
-                      key={sibId}
-                      className={cn(
-                        "flex items-center justify-between gap-3 p-3 border rounded-lg cursor-pointer transition-all",
-                        isChecked
-                          ? "bg-blue-100/50 border-blue-300 dark:bg-blue-950/40 dark:border-blue-700"
-                          : "bg-white dark:bg-background hover:bg-slate-50 dark:hover:bg-muted/40"
-                      )}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <input
-                          type="checkbox"
-                          className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shrink-0"
-                          checked={isChecked}
-                          onChange={() => toggleSibling(sibId)}
-                          disabled={selectedQuarters.length === 0}
-                        />
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm truncate">
-                            {displayStudentField(sib.student.studentName)}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Class {refName(sibCls)}-{refName(sibSec)}
-                            {sib.calculation?.previousDue
-                              ? ` · Due ${formatCurrency(sib.calculation.previousDue)}`
-                              : ""}
-                          </p>
-                        </div>
+              {siblings.map((sib) => {
+                const sibId = getStudentRecordId(sib.student);
+                const isChecked = selectedSiblings.includes(sibId);
+                const sibAmount = getSiblingCalculatedAmount(sibId);
+                const sibCls = sib.student.classId as { name: string };
+                const sibSec = sib.student.sectionId as { name: string };
+
+                return (
+                  <label
+                    key={sibId}
+                    className={cn(
+                      "flex items-center justify-between gap-3 p-3 border rounded-lg cursor-pointer transition-all",
+                      isChecked
+                        ? "bg-blue-100/50 border-blue-300 dark:bg-blue-950/40 dark:border-blue-700"
+                        : "bg-white dark:bg-background hover:bg-slate-50 dark:hover:bg-muted/40"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <input
+                        type="checkbox"
+                        className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shrink-0"
+                        checked={isChecked}
+                        onChange={() => toggleSibling(sibId)}
+                        disabled={selectedQuarters.length === 0}
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">
+                          {displayStudentField(sib.student.studentName)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Class {refName(sibCls)}-{refName(sibSec)}
+                          {sib.calculation?.previousDue
+                            ? ` · Due ${formatCurrency(sib.calculation.previousDue)}`
+                            : ""}
+                        </p>
                       </div>
+                    </div>
 
+                    <div className="flex items-center gap-2 shrink-0">
                       {selectedQuarters.length === 0 ? (
-                        <span className="text-xs text-muted-foreground italic shrink-0">Select quarter first</span>
+                        <span className="text-xs text-muted-foreground italic">Select quarter first</span>
                       ) : sibAmount > 0 ? (
-                        <span className="text-sm font-bold text-blue-700 dark:text-blue-400 shrink-0 tabular-nums">
+                        <span className="text-sm font-bold text-blue-700 dark:text-blue-400 tabular-nums">
                           + {formatCurrency(sibAmount)}
                         </span>
                       ) : (
-                        <span className="text-xs text-emerald-600 font-medium shrink-0">No dues this quarter</span>
+                        <span className="text-xs text-emerald-600 font-medium">No dues this quarter</span>
                       )}
-                    </label>
-                  );
-                })}
-                {selectedSiblings.length > 0 && selectedQuarters.length > 0 && (
-                  <p className="text-xs text-blue-800 dark:text-blue-300 rounded-md border border-blue-200 bg-blue-50/80 px-2 py-1.5 dark:border-blue-800 dark:bg-blue-950/30">
-                    Sibling total: <strong>{formatCurrency(siblingPendingSum)}</strong> for Quarter{" "}
-                    {selectedQuarters.join(", ")}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                      {sib.isManualSibling && (
+                        <button
+                          type="button"
+                          title="Unlink sibling"
+                          disabled={removingSiblingId === sibId}
+                          onClick={(e) => handleRemoveManualSibling(sibId, e)}
+                          className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-red-50 dark:hover:bg-red-950/40"
+                        >
+                          {removingSiblingId === sibId ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <X className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+              {selectedSiblings.length > 0 && selectedQuarters.length > 0 && (
+                <p className="text-xs text-blue-800 dark:text-blue-300 rounded-md border border-blue-200 bg-blue-50/80 px-2 py-1.5 dark:border-blue-800 dark:bg-blue-950/30">
+                  Sibling total: <strong>{formatCurrency(siblingPendingSum)}</strong> for Quarter{" "}
+                  {selectedQuarters.join(", ")}
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader><CardTitle>Payment Details</CardTitle></CardHeader>
@@ -1231,18 +1440,16 @@ function CollectFeePageContent() {
                   </SelectContent>
                 </Select>
               </FormField>
-              {isSuperAdmin && (
-                <FormField label="Payment Date">
-                  <FlexibleDateInput
-                    value={paymentDate}
-                    onChange={setPaymentDate}
-                    placeholder="DD/MM/YYYY"
-                  />
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Super Admin can collect fees on a back date. Future dates not allowed.
-                  </p>
-                </FormField>
-              )}
+              <FormField label="Payment Date">
+                <FlexibleDateInput
+                  value={paymentDate}
+                  onChange={setPaymentDate}
+                  placeholder="DD/MM/YYYY"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Back date (past date) ya aaj ki date enter kar sakte hain. Future dates not allowed.
+                </p>
+              </FormField>
               <FormField label="Remarks">
                 <Textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Optional remarks" />
               </FormField>

@@ -18,10 +18,9 @@ import { toCalendarDateString, parseCalendarDate, todayCalendarDateString } from
 
 const resolveSessionId = resolveAcademicSession;
 
-/** Super Admin may set a past payment date; others always get now. Future dates blocked. */
-const resolveCollectPaymentDate = (req: AuthRequest, rawDate?: unknown): Date => {
-  const isSuperAdmin = req.user?.role === "super_admin";
-  if (!isSuperAdmin || rawDate === undefined || rawDate === null || String(rawDate).trim() === "") {
+/** Any authenticated user may set a past/today payment date; defaults to now. Future dates blocked. */
+const resolveCollectPaymentDate = (_req: AuthRequest, rawDate?: unknown): Date => {
+  if (rawDate === undefined || rawDate === null || String(rawDate).trim() === "") {
     return new Date();
   }
   const parsed = parseCalendarDate(rawDate);
@@ -94,20 +93,34 @@ export const getStudentFeeSummary = async (req: AuthRequest, res: Response) => {
     const sessionRef = student.sessionId as unknown as { _id?: { toString: () => string }; toString: () => string };
     const enrolledSessionId = sessionRef._id ? sessionRef._id.toString() : sessionRef.toString();
 
-    // Fetch siblings — same father name + mobile number
-    let siblingsQuery: Record<string, unknown> = { _id: null };
+    // Fetch siblings — same father name + mobile number OR manually linked siblingIds
+    const orConditions: Record<string, unknown>[] = [];
     if (
       student.fatherName?.trim() &&
       student.mobileNumber?.trim() &&
       student.mobileNumber !== "0000000000"
     ) {
-      siblingsQuery = {
+      orConditions.push({
         fatherName: student.fatherName.trim(),
         mobileNumber: student.mobileNumber.trim(),
-        _id: { $ne: student._id },
-        status: "active",
-      };
+      });
     }
+    const manualIds = Array.isArray(student.siblingIds)
+      ? student.siblingIds.filter(Boolean)
+      : [];
+    if (manualIds.length > 0) {
+      orConditions.push({ _id: { $in: manualIds } });
+    }
+    orConditions.push({ siblingIds: student._id });
+
+    const siblingsQuery: Record<string, unknown> =
+      orConditions.length > 0
+        ? {
+            $or: orConditions,
+            _id: { $ne: student._id },
+            status: "active",
+          }
+        : { _id: null };
 
     const siblings = await Student.find(siblingsQuery)
       .populate("classId", "name")
@@ -115,31 +128,42 @@ export const getStudentFeeSummary = async (req: AuthRequest, res: Response) => {
       .populate("sessionId", "name")
       .populate("transportRouteId", "name monthlyFee");
 
+    const manualIdStrings = new Set(manualIds.map((id) => id.toString()));
+
     const siblingSummaries = await Promise.all(
       siblings.map(async (sib) => {
         const sibTransport = await resolveStudentTransport(sib.transportRequired, sib.transportRouteId);
         let sibCalc: Awaited<ReturnType<typeof calculateFee>> | null = null;
-        const sibFeeStructure = await FeeStructure.findOne({
-          classId: sib.classId._id,
-          sessionId: session._id,
-        });
-        if (sibFeeStructure) {
-          sibCalc = await calculateFee(
-            sib._id.toString(),
-            session._id.toString(),
-            sib.classId._id.toString(),
-            0,
-            sibTransport,
-            sib.feeDiscount || 0,
-            includeAdmission
-          );
+        const sibClassId = (sib.classId as { _id?: { toString: () => string } })?._id || sib.classId;
+        if (sibClassId) {
+          const sibFeeStructure = await FeeStructure.findOne({
+            classId: sibClassId,
+            sessionId: session._id,
+          });
+          if (sibFeeStructure) {
+            sibCalc = await calculateFee(
+              sib._id.toString(),
+              session._id.toString(),
+              sibClassId.toString(),
+              0,
+              sibTransport,
+              sib.feeDiscount || 0,
+              includeAdmission
+            );
+          }
         }
         const sibObj = sib.toObject() as any;
         sibObj.dateOfBirth = toCalendarDateString(sibObj.dateOfBirth);
         sibObj.admissionDate = toCalendarDateString(sibObj.admissionDate);
+        const sibManualIds = Array.isArray(sib.siblingIds)
+          ? sib.siblingIds.map((id) => id.toString())
+          : [];
+        const isManualSibling =
+          manualIdStrings.has(sib._id.toString()) || sibManualIds.includes(student._id.toString());
         return {
           student: sibObj,
           calculation: sibCalc,
+          isManualSibling,
         };
       })
     );

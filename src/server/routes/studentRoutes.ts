@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getStudents, getStudent, createStudent, importStudents, updateStudent, deleteStudent, updateStudentFeeDiscount } from "../controllers/studentController";
+import { getStudents, getStudent, createStudent, importStudents, updateStudent, deleteStudent, updateStudentFeeDiscount, linkSibling, unlinkSibling } from "../controllers/studentController";
 import { authenticate, authorize } from "../middleware/auth";
 import { uploadStudentExcel, uploadStudentPhoto } from "../middleware/upload";
 import { validate } from "../middleware/validate";
@@ -13,6 +13,8 @@ router.get("/", getStudents);
 router.post("/import", authorize("super_admin"), uploadStudentExcel.single("file"), importStudents);
 router.get("/:id", getStudent);
 router.patch("/:id/fee-discount", validate(studentFeeDiscountSchema), updateStudentFeeDiscount);
+router.post("/:id/siblings", linkSibling);
+router.delete("/:id/siblings/:siblingId", unlinkSibling);
 router.post("/", uploadStudentPhoto.single("photo"), createStudent);
 router.put("/:id", uploadStudentPhoto.single("photo"), updateStudent);
 router.delete("/:id", deleteStudent);

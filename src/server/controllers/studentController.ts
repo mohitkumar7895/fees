@@ -754,3 +754,49 @@ export const updateStudentFeeDiscount = async (req: AuthRequest, res: Response) 
     res.status(500).json({ success: false, message: "Failed to update discount", error: String(error) });
   }
 };
+
+export const linkSibling = async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.params.id;
+    const siblingId = String(req.body.siblingId || "").trim();
+    if (!siblingId || !Types.ObjectId.isValid(siblingId)) {
+      return res.status(400).json({ success: false, message: "Valid siblingId is required" });
+    }
+    if (studentId === siblingId) {
+      return res.status(400).json({ success: false, message: "Cannot link a student as their own sibling" });
+    }
+
+    const [student, sibling] = await Promise.all([
+      Student.findById(studentId),
+      Student.findById(siblingId),
+    ]);
+    if (!student || !sibling) {
+      return res.status(404).json({ success: false, message: "Student or sibling not found" });
+    }
+
+    await Promise.all([
+      Student.findByIdAndUpdate(studentId, { $addToSet: { siblingIds: sibling._id } }),
+      Student.findByIdAndUpdate(siblingId, { $addToSet: { siblingIds: student._id } }),
+    ]);
+
+    res.json({ success: true, message: "Sibling linked successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to link sibling", error: String(error) });
+  }
+};
+
+export const unlinkSibling = async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.params.id;
+    const siblingId = req.params.siblingId;
+
+    await Promise.all([
+      Student.findByIdAndUpdate(studentId, { $pull: { siblingIds: siblingId } }),
+      Student.findByIdAndUpdate(siblingId, { $pull: { siblingIds: studentId } }),
+    ]);
+
+    res.json({ success: true, message: "Sibling removed successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to remove sibling", error: String(error) });
+  }
+};

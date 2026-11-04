@@ -12,7 +12,7 @@ export const login = async (req: AuthRequest, res: Response) => {
     }
 
     const secret = process.env.JWT_SECRET || "fallback-secret";
-    const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
+    const expiresIn = process.env.JWT_EXPIRES_IN || "365d";
     const token = jwt.sign(
       { id: user._id.toString(), email: user.email, role: user.role, name: user.name },
       secret,

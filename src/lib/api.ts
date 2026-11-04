@@ -46,6 +46,18 @@ export async function apiClient<T>(
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    if (res.status === 401 && !skipAuth && endpoint !== "/auth/login") {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        referenceRequests.clear();
+        window.dispatchEvent(new Event("auth:unauthorized"));
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+        return new Promise<T>(() => {});
+      }
+    }
     const message =
       res.status === 413
         ? "Upload too large. Use a smaller logo image or save without changing the logo."
@@ -179,6 +191,15 @@ export const studentsApi = {
     apiClient(`/students/${id}/fee-discount`, {
       method: "PATCH",
       body: JSON.stringify({ feeDiscount }),
+    }),
+  linkSibling: (id: string, siblingId: string) =>
+    apiClient(`/students/${id}/siblings`, {
+      method: "POST",
+      body: JSON.stringify({ siblingId }),
+    }),
+  unlinkSibling: (id: string, siblingId: string) =>
+    apiClient(`/students/${id}/siblings/${siblingId}`, {
+      method: "DELETE",
     }),
   delete: (id: string) => apiClient(`/students/${id}`, { method: "DELETE" }),
 };

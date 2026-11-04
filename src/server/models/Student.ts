@@ -47,6 +47,7 @@ export interface IStudent extends Document {
   mbuStatus?: string;
   apaarId?: string;
   apaarStatus?: string;
+  siblingIds?: Types.ObjectId[];
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -100,6 +101,7 @@ const studentSchema = new Schema<IStudent>(
     mbuStatus: { type: String, trim: true },
     apaarId: { type: String, trim: true },
     apaarStatus: { type: String, trim: true },
+    siblingIds: [{ type: Schema.Types.ObjectId, ref: "Student" }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }

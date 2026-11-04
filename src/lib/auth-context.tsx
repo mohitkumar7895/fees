@@ -49,7 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
-  }, []);
+
+    const handleUnauthorized = () => {
+      setToken(null);
+      setUser(null);
+      router.push("/login");
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [router]);
 
   useEffect(() => {
     if (!loading) {
