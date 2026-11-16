@@ -22,17 +22,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const publicPaths = [
-  "/",
-  "/login",
-  "/about",
-  "/academics",
-  "/admissions",
-  "/facilities",
-  "/fees",
-  "/gallery",
-  "/contact",
-];
+const publicPaths = ["/login"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

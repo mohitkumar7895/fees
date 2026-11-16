@@ -22,8 +22,8 @@ const heading = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "School Fee Management System & Academy",
-  description: "Premier School Education Portal & Management ERP",
+  title: "School Fee Management System",
+  description: "School Fee Management ERP",
 };
 
 const themeBootScript = `
