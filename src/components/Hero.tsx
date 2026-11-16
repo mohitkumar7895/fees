@@ -31,7 +31,7 @@ export const Hero: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Column: Heading, Text & CTAs */}
           <div className="lg:col-span-6 text-center lg:text-left space-y-5 animate-fade-in">
             {/* Subtitle Badge */}
@@ -39,7 +39,7 @@ export const Hero: React.FC = () => {
               <span className="flex h-2 w-2 rounded-full bg-[#ffc107] animate-ping" />
               <Sparkles className="w-4 h-4 text-[#ffc107] animate-wiggle" />
               <h4 className="text-white text-xs sm:text-sm font-extrabold uppercase tracking-widest">
-                Kids Learning Center
+                Child Learning Center
               </h4>
             </div>
 
@@ -49,10 +49,10 @@ export const Hero: React.FC = () => {
                 style={{ fontFamily: "'Handlee', cursive, sans-serif" }}
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[62px] font-bold text-white leading-[1.18] tracking-tight drop-shadow-sm"
               >
-                New Approach to Kids Education
+                New Approach to child Education
               </h1>
               <p className="text-teal-50/95 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
-                Sea ipsum kasd eirmod kasd magna, est sea et diam ipsum est amet sed sit. Ipsum dolor no justo dolor et, lorem ut dolor erat dolore sed ipsum at ipsum nonumy amet. Clita lorem dolore sed stet et est justo dolore.
+                Nurturing young minds through creative play, smart interactive classrooms, STEM curiosity, and holistic development in a caring environment.
               </p>
             </div>
 
@@ -93,26 +93,28 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: KidKinder Hero Image with Scalloped Cloud Frame */}
+          {/* Right Column: School Banner Image (banner1.png) with Elegant Showcase Styling */}
           <div className="lg:col-span-6 flex justify-center lg:justify-end relative">
-            <div className="relative w-full max-w-lg flex items-center justify-center">
+            <div className="relative w-full max-w-xl flex items-center justify-center">
               {/* Radial Backdrop Glow */}
-              <div className="absolute inset-4 bg-white/15 rounded-full blur-3xl animate-pulse-glow -z-10" />
+              <div className="absolute inset-2 bg-white/20 rounded-full blur-3xl animate-pulse-glow -z-10" />
 
-              {/* Main Cloud-Cutout KidKinder Header Image with Float Animation */}
-              <div className="relative animate-float duration-1000 z-10 w-full flex items-center justify-center">
-                <Image
-                  src="/img/header.png"
-                  alt="New Approach to Kids Education"
-                  width={580}
-                  height={580}
-                  className="object-contain max-h-[500px] w-auto drop-shadow-2xl transition-transform duration-500 hover:scale-105"
-                  priority
-                />
+              {/* Main Banner Showcase with Float Animation & Rounded Frame */}
+              <div className="relative animate-float duration-1000 z-10 w-full group">
+                <div className="overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white/30 bg-white/10 backdrop-blur-xs transition-transform duration-500 group-hover:scale-[1.02]">
+                  <Image
+                    src="/img/banner1.png"
+                    alt="A.K. Sunshine Convent School Banner"
+                    width={1200}
+                    height={600}
+                    className="w-full h-auto object-cover block"
+                    priority
+                  />
+                </div>
               </div>
 
               {/* Floating Badge 1: Top Left (Rating) */}
-              <div className="absolute top-2 left-0 sm:left-2 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float-slow">
+              <div className="absolute -top-4 -left-2 sm:left-2 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float-slow">
                 <div className="w-9 h-9 rounded-xl bg-amber-400 text-white flex items-center justify-center shadow-sm shrink-0">
                   <Star className="w-5 h-5 fill-white text-white" />
                 </div>
@@ -126,7 +128,7 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Floating Badge 2: Top Right (CBSE 100% Results) */}
-              <div className="absolute top-10 -right-2 sm:right-2 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float-reverse">
+              <div className="absolute -top-3 -right-2 sm:right-2 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float-reverse">
                 <div className="w-9 h-9 rounded-xl bg-[#17a2b8] text-white flex items-center justify-center shadow-sm shrink-0">
                   <Award className="w-5 h-5" />
                 </div>
@@ -137,13 +139,13 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Floating Badge 3: Bottom Right (Playgroup to XII) */}
-              <div className="absolute -bottom-2 right-4 sm:right-10 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float">
+              <div className="absolute -bottom-5 right-2 sm:right-8 z-20 bg-white/95 backdrop-blur-md text-gray-800 p-2.5 sm:p-3 rounded-2xl shadow-xl border border-white/40 flex items-center gap-2.5 animate-float">
                 <div className="w-9 h-9 rounded-xl bg-[#00394f] text-white flex items-center justify-center shadow-sm shrink-0">
                   <GraduationCap className="w-5 h-5 text-[#ffc107]" />
                 </div>
                 <div className="text-left pr-2">
-                  <span className="block text-xs font-black text-gray-900 leading-none">Playgroup to XII</span>
-                  <span className="text-[10px] font-semibold text-gray-500">Day-Boarding & Sports</span>
+                  <span className="block text-xs font-black text-gray-900 leading-none">Playway to 8th</span>
+                  <span className="text-[10px] font-semibold text-gray-500">Co-Ed English Medium</span>
                 </div>
               </div>
             </div>
