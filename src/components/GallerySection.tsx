@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useApp } from '@/context/AppContext';
-import { Plus } from 'lucide-react';
+import { ZoomIn, Sparkles } from 'lucide-react';
 
 const galleryItems = [
   { id: '1', category: 'first', image: '/img/travel.jpg', title: 'Travel & Fun' },
@@ -29,9 +29,9 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ limit }) => {
   const { openLightbox } = useApp();
 
   const filters = [
-    { key: '*', label: 'All' },
-    { key: 'first', label: 'Fun' },
-    { key: 'second', label: 'Activity' },
+    { key: '*', label: 'All Photos' },
+    { key: 'first', label: 'Fun & Play' },
+    { key: 'second', label: 'Activities & Events' },
     { key: 'third', label: 'Achievements' },
   ];
 
@@ -39,27 +39,30 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ limit }) => {
   const displayed = limit ? filtered.slice(0, limit) : filtered;
 
   return (
-    <div className="pt-12 pb-8 bg-white">
+    <section className="pt-16 pb-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center pb-6">
+        <div className="text-center pb-8 space-y-2">
           <p className="section-title px-5 mb-2">
             <span>Our Gallery</span>
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-school-secondary mb-4">
-            Our children School Gallery
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-school-secondary font-heading">
+            Our Children School Gallery
           </h2>
+          <p className="text-gray-600 max-w-xl mx-auto text-sm sm:text-base">
+            Glimpses of joyful campus life, annual days, athletic victories, and creative classroom moments.
+          </p>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
           {filters.map((f) => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`px-5 py-2 rounded-full text-sm font-bold border transition-all ${
+              className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold tracking-wide border transition-all duration-300 transform active:scale-95 ${
                 filter === f.key
-                  ? 'bg-school-primary text-white border-school-primary'
-                  : 'bg-white text-school-primary border-school-primary hover:bg-school-primary hover:text-white'
+                  ? 'bg-school-primary border-school-primary text-white shadow-md scale-105'
+                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-teal-50 hover:border-school-primary hover:text-school-primary'
               }`}
             >
               {f.label}
@@ -67,32 +70,40 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ limit }) => {
           ))}
         </div>
 
-        {/* Portfolio / Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {displayed.map((item) => (
             <div
               key={item.id}
-              className="relative group h-64 overflow-hidden rounded-xl shadow-sm border border-gray-100 cursor-pointer"
               onClick={() => openLightbox(item.image)}
+              className="group relative h-64 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-gray-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5"
             >
               <Image
                 src={item.image}
                 alt={item.title}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
               />
 
-              {/* Hover overlay with Plus icon matching original portfolio-btn */}
-              <div className="absolute inset-0 bg-school-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center text-white transform scale-75 group-hover:scale-100 transition-transform">
-                  <Plus className="w-8 h-8" />
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
+                <div className="flex justify-end">
+                  <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center shadow-sm">
+                    <ZoomIn className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-white text-base font-bold drop-shadow-md">
+                    {item.title}
+                  </h4>
+                  <span className="text-[11px] font-semibold text-amber-300">Click to enlarge</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

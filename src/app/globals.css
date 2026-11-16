@@ -178,3 +178,27 @@
 .website-wrapper :is(input, select, textarea):user-valid:not(:placeholder-shown) {
   border-color: #059669;
 }
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-reverse,
+  .animate-float-slow,
+  .animate-pulse-glow,
+  .animate-wiggle,
+  .animate-bubble,
+  .animate-marquee {
+    animation: none !important;
+  }
+}
+
+/* Playful background gradient pulse */
+@keyframes hero-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-hero-gradient {
+  background-size: 200% 200%;
+  animation: hero-gradient 14s ease infinite;
+}

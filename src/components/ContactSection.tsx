@@ -158,13 +158,13 @@ export const ContactSection: React.FC = () => {
           </div>
 
           {/* Contact Details List */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="flex items-start">
-              <div className="w-12 h-12 rounded-full bg-school-primary text-school-secondary flex items-center justify-center shrink-0 mr-4">
+          <div className="lg:col-span-5 space-y-5">
+            <div className="flex items-start p-3.5 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-school-primary/30 hover:bg-gray-50 transition-all duration-300 transform hover:-translate-x-1">
+              <div className="w-12 h-12 rounded-xl bg-school-primary text-white flex items-center justify-center shrink-0 mr-4 shadow-md">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h5 className="text-xl font-bold text-school-secondary mb-1">Address</h5>
+                <h5 className="text-lg font-bold text-school-secondary mb-1">Address</h5>
                 <p className="text-sm text-gray-600 leading-relaxed">
                   Nagla Sikandar, Punjab National Bank ke Samne wale Raste Par, Tundla, Firozabad <br />
                   Pin 283204
@@ -172,34 +172,38 @@ export const ContactSection: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-start">
-              <div className="w-12 h-12 rounded-full bg-school-primary text-school-secondary flex items-center justify-center shrink-0 mr-4">
+            <div className="flex items-start p-3.5 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-school-primary/30 hover:bg-gray-50 transition-all duration-300 transform hover:-translate-x-1">
+              <div className="w-12 h-12 rounded-xl bg-school-primary text-white flex items-center justify-center shrink-0 mr-4 shadow-md">
                 <Mail className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h5 className="text-xl font-bold text-school-secondary mb-1">Email</h5>
-                <p className="text-sm text-gray-600">aksunshinetdl@gmail.com</p>
+                <h5 className="text-lg font-bold text-school-secondary mb-1">Email</h5>
+                <a href="mailto:aksunshinetdl@gmail.com" className="text-sm text-gray-600 hover:text-school-primary transition-colors">
+                  aksunshinetdl@gmail.com
+                </a>
               </div>
             </div>
 
-            <div className="flex items-start">
-              <div className="w-12 h-12 rounded-full bg-school-primary text-school-secondary flex items-center justify-center shrink-0 mr-4">
+            <div className="flex items-start p-3.5 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-school-primary/30 hover:bg-gray-50 transition-all duration-300 transform hover:-translate-x-1">
+              <div className="w-12 h-12 rounded-xl bg-school-primary text-white flex items-center justify-center shrink-0 mr-4 shadow-md">
                 <Phone className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h5 className="text-xl font-bold text-school-secondary mb-1">Phone</h5>
-                <p className="text-sm text-gray-600">+91-6396670330</p>
+                <h5 className="text-lg font-bold text-school-secondary mb-1">Phone</h5>
+                <a href="tel:+916396670330" className="text-sm text-gray-600 hover:text-school-primary transition-colors">
+                  +91-6396670330
+                </a>
               </div>
             </div>
 
-            <div className="flex items-start">
-              <div className="w-12 h-12 rounded-full bg-school-primary text-school-secondary flex items-center justify-center shrink-0 mr-4">
+            <div className="flex items-start p-3.5 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-school-primary/30 hover:bg-gray-50 transition-all duration-300 transform hover:-translate-x-1">
+              <div className="w-12 h-12 rounded-xl bg-school-primary text-white flex items-center justify-center shrink-0 mr-4 shadow-md">
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h5 className="text-xl font-bold text-school-secondary mb-1">Opening Hours</h5>
-                <p className="text-sm font-semibold text-gray-700">Sunday - Friday:</p>
-                <p className="text-sm text-gray-600">08:00 AM - 05:00 PM</p>
+                <h5 className="text-lg font-bold text-school-secondary mb-1">Visiting Hours</h5>
+                <p className="text-sm font-semibold text-gray-700">Monday – Saturday:</p>
+                <p className="text-sm text-gray-600">08:00 AM - 03:30 PM</p>
               </div>
             </div>
           </div>

@@ -92,9 +92,34 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "float": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-6px)" },
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        "float-reverse": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(12px)" },
+        },
+        "float-slow": {
+          "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
+          "50%": { transform: "translateY(-8px) rotate(2deg)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        },
+        "bubble": {
+          "0%, 100%": { transform: "scale(1) translate(0, 0)" },
+          "33%": { transform: "scale(1.08) translate(6px, -8px)" },
+          "66%": { transform: "scale(0.94) translate(-6px, 6px)" },
         },
         "marquee": {
           "0%": { transform: "translateX(0%)" },
@@ -105,7 +130,13 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-in-up": "fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         "float": "float 4s ease-in-out infinite",
+        "float-reverse": "float-reverse 5s ease-in-out infinite",
+        "float-slow": "float-slow 6s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "wiggle": "wiggle 2s ease-in-out infinite",
+        "bubble": "bubble 9s ease-in-out infinite",
         "marquee": "marquee 25s linear infinite",
       },
     },

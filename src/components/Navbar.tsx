@@ -47,20 +47,26 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center font-bold mx-auto">
+          <nav className="hidden lg:flex items-center font-bold mx-auto gap-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-6 text-base tracking-wide transition-colors ${
+                  className={`relative px-4 py-6 text-base tracking-wide transition-colors group ${
                     active
                       ? 'text-school-primary font-black'
                       : 'text-school-secondary hover:text-school-primary'
                   }`}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {/* Animated Active/Hover Indicator */}
+                  <span
+                    className={`absolute bottom-4 left-4 right-4 h-0.5 bg-school-primary rounded-full transition-all duration-300 ${
+                      active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-75'
+                    }`}
+                  />
                 </Link>
               );
             })}
@@ -70,14 +76,14 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             <Link
               href="/admission"
-              className="hidden sm:inline-block bg-school-primary hover:bg-school-primaryDark text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm uppercase tracking-wider transition-all"
+              className="hidden sm:inline-block bg-school-primary hover:bg-school-primaryDark text-white font-bold py-2.5 px-5 rounded-full shadow-sm hover:shadow-md text-sm uppercase tracking-wider transition-all transform hover:-translate-y-0.5"
             >
               Online Admission
             </Link>
 
             <Link
               href="/dashboard"
-              className="hidden sm:inline-flex items-center gap-1.5 bg-school-secondary hover:bg-school-secondaryDark text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm uppercase tracking-wider transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 bg-school-secondary hover:bg-school-secondaryDark text-white font-bold py-2.5 px-5 rounded-full shadow-sm hover:shadow-md text-sm uppercase tracking-wider transition-all transform hover:-translate-y-0.5"
             >
               Dashboard ERP
             </Link>
