@@ -82,3 +82,10 @@ export async function compressImageToDataUrl(
 
   return dataUrl;
 }
+
+export function generateApplicationId(): string {
+  const prefix = "AKS";
+  const year = new Date().getFullYear();
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `${prefix}-${year}-${random}`;
+}

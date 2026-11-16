@@ -101,3 +101,80 @@
     background: transparent;
   }
 }
+
+/* Website-specific Typography & KidKinder Elements */
+.website-wrapper h1,
+.website-wrapper h2,
+.website-wrapper h3,
+.website-wrapper h4,
+.website-wrapper h5,
+.website-wrapper h6,
+.font-heading {
+  font-family: 'Handlee', cursive, sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.website-wrapper {
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Section title with horizontal center line */
+.section-title {
+  position: relative;
+  display: inline-block;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #17a2b8;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.section-title span {
+  position: relative;
+  background: #ffffff;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  z-index: 1;
+}
+
+.bg-gray-50 .section-title span {
+  background: #f9fafb;
+}
+
+.section-title::before {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #17a2b8;
+  transform: translateY(-50%);
+}
+
+/* Marquee scroll animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+
+/* Modern Web Guidance: Form input :user-invalid and :user-valid states */
+.website-wrapper :is(input, select, textarea):user-invalid {
+  border-color: #e11d48;
+  background-color: #fff1f2;
+}
+
+.website-wrapper :is(input, select, textarea):user-valid:not(:placeholder-shown) {
+  border-color: #059669;
+}

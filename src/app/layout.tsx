@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { BrandingProvider } from "@/lib/branding-context";
 import { ThemeProvider } from "@/lib/theme-context";
+import { AppProvider } from "@/context/AppContext";
+import { WebsiteChrome } from "@/components/WebsiteChrome";
 import { SchoolFaviconBootstrap } from "@/components/shared/school-favicon-bootstrap";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -22,8 +24,12 @@ const heading = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "School Fee Management System",
-  description: "School Fee Management ERP",
+  title: "A.K. Sunshine Convent School | Nagla Sikandar, Tundla, Firozabad",
+  description:
+    "A.K. Sunshine Convent School is a premier educational institution in Tundla, Firozabad, offering co-educational holistic learning, smart digiboards, safe transport, and experienced educators.",
+  icons: {
+    icon: "/img/logo1.png",
+  },
 };
 
 const themeBootScript = `
@@ -42,14 +48,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Handlee&family=Nunito:wght@300;400;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={`${sans.variable} ${heading.variable} font-sans antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary`}>
+      <body
+        className={`${sans.variable} ${heading.variable} font-sans antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary`}
+      >
         <ThemeProvider>
           <AuthProvider>
             <BrandingProvider>
-              <SchoolFaviconBootstrap />
-              {children}
-              <Toaster />
+              <AppProvider>
+                <SchoolFaviconBootstrap />
+                <WebsiteChrome>{children}</WebsiteChrome>
+                <Toaster />
+              </AppProvider>
             </BrandingProvider>
           </AuthProvider>
         </ThemeProvider>

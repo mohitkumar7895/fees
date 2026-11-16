@@ -58,7 +58,12 @@ prepareNext()
 
     const expressApp = createApp();
     const server = createServer((req, res) => {
-      if (req.url?.startsWith("/api") || req.url?.startsWith("/uploads")) {
+      const isNextApi =
+        req.url?.startsWith("/api/admission") ||
+        req.url?.startsWith("/api/contact") ||
+        req.url?.startsWith("/api/newsletter");
+
+      if (!isNextApi && (req.url?.startsWith("/api") || req.url?.startsWith("/uploads"))) {
         expressApp(req, res);
       } else {
         handle(req, res);

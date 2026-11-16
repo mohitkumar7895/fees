@@ -11,33 +11,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/about",
-        destination: "/dashboard",
+        source: "/admissions",
+        destination: "/admission",
         permanent: false,
       },
       {
         source: "/academics",
-        destination: "/dashboard",
-        permanent: false,
-      },
-      {
-        source: "/admissions",
-        destination: "/dashboard",
+        destination: "/classes",
         permanent: false,
       },
       {
         source: "/facilities",
-        destination: "/dashboard",
-        permanent: false,
-      },
-      {
-        source: "/gallery",
-        destination: "/dashboard",
-        permanent: false,
-      },
-      {
-        source: "/contact",
-        destination: "/dashboard",
+        destination: "/about",
         permanent: false,
       },
       {

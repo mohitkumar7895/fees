@@ -56,6 +56,17 @@ const config: Config = {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
         },
+        school: {
+          primary: "#17a2b8",
+          primaryDark: "#117a8b",
+          primaryLight: "#e1f5f8",
+          secondary: "#00394f",
+          secondaryDark: "#002736",
+          secondaryLight: "#0a5675",
+          accent: "#ffc107",
+          dark: "#1c1f23",
+          light: "#f8f9fa",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -63,8 +74,10 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
-        heading: ["var(--font-heading)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "Nunito", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["var(--font-heading)", "Handlee", "cursive", "Georgia", "serif"],
+        schoolHeading: ["Handlee", "cursive", "sans-serif"],
+        schoolSans: ["Nunito", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

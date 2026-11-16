@@ -36,7 +36,7 @@ const superAdminGroups: NavGroup[] = [
     title: "Setup",
     links: [
       { href: "/admin-users", label: "Admin Users", icon: Users },
-      { href: "/classes", label: "Classes", icon: BookOpen },
+      { href: "/admin-classes", label: "Classes", icon: BookOpen },
       { href: "/sections", label: "Sections", icon: Layers },
       { href: "/sessions", label: "Sessions", icon: Calendar },
       { href: "/fee-structure", label: "Fee Structure", icon: IndianRupee },
