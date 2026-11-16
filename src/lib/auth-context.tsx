@@ -34,6 +34,11 @@ const publicPaths = [
   "/teachers",
 ];
 
+const isPublicPath = (path: string | null) => {
+  if (!path) return false;
+  return publicPaths.some((p) => path === p || (p !== "/" && path.startsWith(p + "/")));
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -61,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!loading) {
-      if (!token && pathname && !publicPaths.includes(pathname)) {
+      if (!token && pathname && !isPublicPath(pathname)) {
         router.push("/login");
       } else if (token && pathname === "/login") {
         router.push("/dashboard");

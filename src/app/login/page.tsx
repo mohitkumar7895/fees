@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Moon, ShieldCheck, Sun } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Loader2, Moon, ShieldCheck, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,6 +88,13 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <Link
+        href="/"
+        className="absolute left-4 top-4 z-10 flex items-center gap-1.5 text-xs font-semibold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-md transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        <span>Back to School Website</span>
+      </Link>
       <Button
         type="button"
         variant="ghost"
